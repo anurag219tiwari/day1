@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rose Garden Quest 🌹</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      overflow-x: hidden;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    /* Gradient background */
+    .screen {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: linear-gradient(135deg, #fff0f3 0%, #ffe8e8 50%, #ffd4d4 100%);
+      position: relative;
+      opacity: 1;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* Floating petals */
+    .petal {
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      background: rgba(255, 105, 180, 0.6);
+      border-radius: 50% 0 50% 0;
+      animation: fall linear infinite;
+      opacity: 0;
+    }
+
+    @keyframes fall {
+      0% {
+        opacity: 0;
+        transform: translateY(-100px) rotate(0deg);
+      }
+
+      10% {
+        opacity: 1;
+      }
+
+      90% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(100vh) rotate(360deg);
+      }
+    }
+
+    /* Arrival screen */
+    .arrival-content {
+      text-align: center;
+      z-index: 10;
+    }
+
+    .arrival-content h1 {
+      font-size: 2rem;
+      color: #d44d7a;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .arrival-content p {
+      font-size: 1.1rem;
+      color: #7a5464;
+      margin-bottom: 40px;
+      font-style: italic;
+    }
+
+    button {
+      background: linear-gradient(135deg, #ff6b9d 0%, #d44d7a 100%);
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      font-size: 1.1rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      font-family: 'Georgia', serif;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 30px rgba(212, 77, 122, 0.3);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Garden screen */
+    .garden-header {
+      text-align: center;
+      margin-bottom: 40px;
+      z-index: 10;
+    }
+
+    .garden-header h2 {
+      font-size: 1.5rem;
+      color: #d44d7a;
+      margin-bottom: 10px;
+    }
+
+    .rose-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 30px;
+      max-width: 600px;
+      width: 100%;
+      z-index: 10;
+    }
+
+    .rose-card {
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 20px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.4s;
+      position: relative;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(212, 77, 122, 0.2);
+    }
+
+    .rose-card.locked {
+      filter: blur(3px);
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .rose-card.unlocked {
+      filter: none;
+      opacity: 1;
+    }
+
+    .rose-card.unlocked:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(212, 77, 122, 0.3);
+    }
+
+    .rose-icon {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .rose-name {
+      font-size: 1rem;
+      color: #7a5464;
+      font-weight: bold;
+    }
+
+    .lock-icon {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 1.2rem;
+    }
+
+    /* Individual rose experiences */
+    .rose-experience {
+      text-align: center;
+      max-width: 500px;
+      z-index: 10;
+    }
+
+    .rose-experience h2 {
+      font-size: 2rem;
+      color: #d44d7a;
+      margin-bottom: 30px;
+    }
+
+    .rose-experience p {
+      font-size: 1.2rem;
+      color: #7a5464;
+      line-height: 1.8;
+      margin-bottom: 30px;
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.8);
+      color: #d44d7a;
+      margin-top: 30px;
+      padding: 12px 30px;
+    }
+
+    /* Heartbeat animation */
+    @keyframes heartbeat {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      25% {
+        transform: scale(1.02);
+      }
+
+      50% {
+        transform: scale(1);
+      }
+    }
+
+    .heartbeat-screen {
+      animation: heartbeat 2s infinite;
+    }
+
+    /* Compliment roulette */
+    .compliment-box {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .compliment-box.spinning {
+      transform: scale(1.05);
+      box-shadow: 0 0 30px rgba(212, 77, 122, 0.4);
+    }
+
+    .compliment-box p {
+      transition: all 0.15s ease;
+    }
+
+    .compliment-box.spinning p {
+      opacity: 0.7;
+    }
+
+    .compliment-box.reveal p {
+      opacity: 1;
+      transform: scale(1.1);
+      color: #d44d7a;
+      font-weight: bold;
+    }
+
+    /* Memory flash */
+    .word-slot {
+      font-size: 3rem;
+      color: #d44d7a;
+      font-weight: bold;
+      margin: 20px 0;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Calm moment */
+    .calm-instruction {
+      font-size: 1.3rem;
+      color: #7a5464;
+      margin: 30px 0;
+    }
+
+    .progress-bar {
+      width: 200px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 20px auto;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff6b9d, #d44d7a);
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    /* Falling Hearts */
+    .falling-heart {
+      position: absolute;
+      top: -30px;
+      font-size: 1.5rem;
+      opacity: 0.6;
+      pointer-events: none;
+      animation: heartFall linear infinite;
+    }
+
+    @keyframes heartFall {
+      0% {
+        transform: translateY(0) rotate(0deg) scale(1);
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 0.6;
+      }
+
+      90% {
+        opacity: 0.6;
+      }
+
+      100% {
+        transform: translateY(100vh) rotate(20deg) scale(0.8);
+        opacity: 0;
+      }
+    }
+
+    /* Rose Images - Creative Styles */
+
+    /* Red Rose - Heartbeat pulse effect */
+    .red-rose-image {
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 25px;
+      box-shadow: 0 0 30px rgba(255, 77, 106, 0.5);
+      animation: heartbeatPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes heartbeatPulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 30px rgba(255, 77, 106, 0.5);
+      }
+
+      15% {
+        transform: scale(1.08);
+        box-shadow: 0 0 50px rgba(255, 77, 106, 0.8);
+      }
+
+      30% {
+        transform: scale(1);
+        box-shadow: 0 0 30px rgba(255, 77, 106, 0.5);
+      }
+
+      45% {
+        transform: scale(1.05);
+        box-shadow: 0 0 40px rgba(255, 77, 106, 0.6);
+      }
+    }
+
+    /* Pink Rose - Floating on top in center */
+    .pink-rose-image {
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 30px;
+      box-shadow: 0 15px 60px rgba(255, 105, 180, 0.6);
+      animation: floatCenter 5s ease-in-out infinite;
+      border: 5px solid rgba(255, 255, 255, 0.9);
+    }
+
+    @keyframes floatCenter {
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(0deg);
+      }
+
+      50% {
+        transform: translateY(-20px) rotate(5deg);
+      }
+    }
+
+    /* Yellow Rose - Sunburst glow */
+    .yellow-rose-image {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 20px;
+      box-shadow: 0 0 0 8px rgba(255, 215, 0, 0.3), 0 0 60px rgba(255, 200, 50, 0.5);
+      animation: sunburstGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes sunburstGlow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 8px rgba(255, 215, 0, 0.3), 0 0 60px rgba(255, 200, 50, 0.5);
+      }
+
+      50% {
+        box-shadow: 0 0 0 15px rgba(255, 215, 0, 0.2), 0 0 80px rgba(255, 200, 50, 0.7);
+      }
+    }
+
+    /* White Rose - Ethereal fade */
+    .white-rose-image {
+      width: 340px;
+      height: 340px;
+      border-radius: 20px;
+      object-fit: cover;
+      margin-bottom: 25px;
+      opacity: 0;
+      transition: opacity 2s ease, transform 2s ease;
+      box-shadow: 0 20px 60px rgba(200, 200, 200, 0.4);
+      filter: brightness(1.1);
+    }
+
+    .white-rose-image.visible {
+      opacity: 1;
+      transform: scale(1.02);
+    }
+
+    /* Lavender Rose - Dreamy blur effect */
+    .lavender-rose-image {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 25px;
+      box-shadow: 0 0 50px rgba(180, 130, 200, 0.6);
+      animation: dreamyFloat 4s ease-in-out infinite;
+      border: 4px solid rgba(255, 255, 255, 0.6);
+    }
+
+    @keyframes dreamyFloat {
+
+      0%,
+      100% {
+        transform: translateY(0) scale(1);
+        filter: brightness(1);
+      }
+
+      50% {
+        transform: translateY(-10px) scale(1.03);
+        filter: brightness(1.15);
+      }
+    }
+
+    /* Golden Rose - Celebratory frame */
+    .golden-rose-image {
+      width: 320px;
+      height: 320px;
+      border-radius: 15px;
+      object-fit: cover;
+      margin-bottom: 25px;
+      border: 5px solid #d4af37;
+      box-shadow: 0 0 30px rgba(212, 175, 55, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.3);
+      animation: goldenShine 2s ease-in-out infinite;
+    }
+
+    @keyframes goldenShine {
+
+      0%,
+      100% {
+        box-shadow: 0 0 30px rgba(212, 175, 55, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.3);
+      }
+
+      50% {
+        box-shadow: 0 0 50px rgba(212, 175, 55, 0.8), inset 0 0 30px rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    /* Hidden by default */
+    .hidden {
+      display: none !important;
+    }
+
+    /* Tap counter hint */
+    .tap-hint {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      color: #7a5464;
+      z-index: 100;
+    }
+
+    /* Hover progress hint */
+    .hover-hint {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      color: #7a5464;
+      z-index: 100;
+    }
+
+    @media (max-width: 600px) {
+      .arrival-content h1 {
+        font-size: 1.5rem;
+      }
+
+      .rose-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Valentine Proposal Styles */
+    .special-btn {
+      background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+      color: white;
+      border: none;
+      padding: 15px 35px;
+      font-size: 1.1rem;
+      border-radius: 50px;
+      cursor: pointer;
+      margin-top: 30px;
+      animation: pulse 2s infinite;
+      font-family: 'Georgia', serif;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(255, 105, 180, 0.5);
+      }
+
+      50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 40px rgba(255, 105, 180, 0.8);
+      }
+    }
+
+    .valentine-content {
+      text-align: center;
+      z-index: 10;
+    }
+
+    .valentine-content h1 {
+      font-size: 2.5rem;
+      color: #d44d7a;
+      margin-bottom: 50px;
+      text-shadow: 2px 2px 10px rgba(255, 105, 180, 0.3);
+    }
+
+    .valentine-buttons {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      align-items: center;
+      min-height: 80px;
+      position: relative;
+    }
+
+    .yes-btn {
+      background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+      color: white;
+      border: none;
+      padding: 20px 50px;
+      font-size: 1.5rem;
+      border-radius: 50px;
+      cursor: pointer;
+      font-family: 'Georgia', serif;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .yes-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 10px 40px rgba(76, 175, 80, 0.5);
+    }
+
+    .no-btn {
+      background: linear-gradient(135deg, #f44336 0%, #c62828 100%);
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      font-size: 1.2rem;
+      border-radius: 50px;
+      cursor: pointer;
+      font-family: 'Georgia', serif;
+      position: absolute;
+      transition: all 0.1s ease;
+    }
+
+    /* Celebration Screen */
+    .celebration-content {
+      text-align: center;
+      z-index: 10;
+    }
+
+    .celebration-content h1 {
+      font-size: 3rem;
+      color: #d44d7a;
+      margin-bottom: 30px;
+      animation: celebrateBounce 0.5s ease infinite alternate;
+    }
+
+    @keyframes celebrateBounce {
+      from {
+        transform: scale(1);
+      }
+
+      to {
+        transform: scale(1.1);
+      }
+    }
+
+    .celebration-content p {
+      font-size: 1.5rem;
+      color: #7a5464;
+      margin-bottom: 30px;
+    }
+
+    .celebration-hearts {
+      font-size: 4rem;
+      animation: heartBurst 1s ease infinite;
+    }
+
+    @keyframes heartBurst {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.2);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ARRIVAL SCREEN -->
+  <div id="arrivalScreen" class="screen">
+    <div class="arrival-content">
+      <h1>Welcome to my Rose Garden 🌹</h1>
+      <p>Every rose here exists because of you.</p>
+      <button onclick="startGarden()">Begin</button>
+    </div>
+  </div>
+
+  <!-- GARDEN SCREEN -->
+  <div id="gardenScreen" class="screen hidden">
+    <div class="garden-header">
+      <h2>Not all roses bloom at once.</h2>
+    </div>
+    <div class="rose-grid" id="roseGrid">
+      <!-- Red Rose -->
+      <div id="redRose" class="rose-card unlocked" onclick="openRose('red')">
+        <span class="rose-icon">🌹</span>
+        <div class="rose-name">Red Rose</div>
+      </div>
+      <!-- Pink Rose -->
+      <div id="pinkRose" class="rose-card locked" onclick="openRose('pink')">
+        <span class="lock-icon">🔒</span>
+        <span class="rose-icon">🌸</span>
+        <div class="rose-name">Pink Rose</div>
+      </div>
+      <!-- Yellow Rose -->
+      <div id="yellowRose" class="rose-card locked" onclick="openRose('yellow')">
+        <span class="lock-icon">🔒</span>
+        <span class="rose-icon">🌼</span>
+        <div class="rose-name">Yellow Rose</div>
+      </div>
+      <!-- White Rose -->
+      <div id="whiteRose" class="rose-card locked" onclick="openRose('white')">
+        <span class="lock-icon">🔒</span>
+        <span class="rose-icon">🤍</span>
+        <div class="rose-name">White Rose</div>
+      </div>
+      <!-- Lavender Rose -->
+      <div id="lavenderRose" class="rose-card locked" onclick="openRose('lavender')">
+        <span class="lock-icon">🔒</span>
+        <span class="rose-icon">💜</span>
+        <div class="rose-name">Lavender Rose</div>
+      </div>
+      <!-- Golden Rose -->
+      <div id="goldenRose" class="rose-card locked" onclick="openRose('golden')">
+        <span class="lock-icon">🔒</span>
+        <span class="rose-icon">🌟</span>
+        <div class="rose-name">Golden Rose</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RED ROSE EXPERIENCE -->
+  <div id="redExperience" class="screen hidden heartbeat-screen">
+    <div class="rose-experience">
+      <img src="images/red.jpeg" alt="Red Rose" class="red-rose-image">
+      <h2>🌹 Red Rose</h2>
+      <!-- ✏️ EDIT YOUR MESSAGE HERE -->
+      <p>Every time I think of you, my heart beats a little faster. Not from nervousness, but from the joy of knowing
+        you exist in my world.</p>
+      <button class="back-btn" onclick="completeRose('red', 'pink')">Continue</button>
+    </div>
+  </div>
+
+  <!-- PINK ROSE EXPERIENCE -->
+  <div id="pinkExperience" class="screen hidden">
+    <div class="rose-experience">
+      <img src="images/pink.jpeg" alt="Pink Rose" class="pink-rose-image">
+      <h2>🌸 Pink Rose</h2>
+      <div class="compliment-box">
+        <p id="complimentText">Click spin to see why you're amazing</p>
+      </div>
+      <button onclick="spinCompliment()">Spin</button>
+      <button class="back-btn" onclick="completeRose('pink', 'yellow')">Back to Garden</button>
+    </div>
+  </div>
+
+  <!-- YELLOW ROSE EXPERIENCE -->
+  <div id="yellowExperience" class="screen hidden">
+    <div class="rose-experience">
+      <img src="images/yellow.jpeg" alt="Yellow Rose" class="yellow-rose-image">
+      <h2>🌼 Yellow Rose</h2>
+      <div class="word-slot" id="wordSlot">✨</div>
+      <p id="yellowMessage" class="hidden">That's how you make me feel.</p>
+      <button id="spinWordBtn" onclick="spinWord()">Reveal</button>
+      <button class="back-btn" onclick="completeRose('yellow', 'white')">Back to Garden</button>
+    </div>
+  </div>
+
+  <!-- WHITE ROSE EXPERIENCE -->
+  <div id="whiteExperience" class="screen hidden">
+    <div class="rose-experience">
+      <img src="images/white.jpeg" alt="White Rose" class="white-rose-image" id="whiteRoseImage">
+      <h2>🤍 White Rose</h2>
+      <p class="calm-instruction">Stay here for 5 seconds.</p>
+      <div class="progress-bar">
+        <div class="progress-fill" id="calmProgress"></div>
+      </div>
+      <p id="calmMessage" class="hidden">
+        <!-- ✏️ EDIT YOUR MESSAGE HERE -->
+        With you, I've found a peace I didn't know I was looking for. You are my calm in every storm.
+      </p>
+      <button class="back-btn hidden" id="whiteBackBtn" onclick="completeRose('white', 'lavender')">Back to
+        Garden</button>
+    </div>
+  </div>
+
+  <!-- LAVENDER ROSE EXPERIENCE -->
+  <div id="lavenderExperience" class="screen hidden">
+    <div class="rose-experience">
+      <img src="images/lavender.png" alt="Lavender Rose" class="lavender-rose-image">
+      <h2>💜 Lavender Rose</h2>
+      <p style="font-style: italic; margin-bottom: 20px;">This rose only blooms for you.</p>
+      <!-- ✏️ EDIT YOUR SECRET MESSAGE HERE -->
+      <p>You are not just my love. You are my best friend, my safe place, my reason to smile even on the hardest days. I
+        choose you, every single day.</p>
+
+      <!-- ✏️ OPTIONAL: ADD VOICE NOTE OR AUDIO HERE -->
+      <!-- Uncomment and replace with your audio file path:
+      <audio controls style="margin: 20px 0;">
+        <source src="your-voice-note.mp3" type="audio/mpeg">
+      </audio>
+      -->
+
+      <button class="back-btn" onclick="completeRose('lavender', 'golden')">Continue</button>
+    </div>
+  </div>
+
+  <!-- GOLDEN ROSE EXPERIENCE (FINALE) -->
+  <div id="goldenExperience" class="screen hidden">
+    <div class="rose-experience">
+      <img src="images/golden.png" alt="Golden Rose" class="golden-rose-image">
+      <h2>🌟 Golden Rose</h2>
+      <p style="font-size: 1.5rem; color: #d4af37; margin-bottom: 30px;">
+        You've unlocked every bloom in this garden.
+      </p>
+      <p>
+        <!-- ✏️ EDIT YOUR FINAL MESSAGE HERE -->
+        This garden isn't finished. New roses will bloom tomorrow, and the day after, and every day I get to love you.
+        ❤️
+      </p>
+      <button class="special-btn" onclick="showValentine()">✨ Click Here for Something Special ✨</button>
+      <button class="back-btn" onclick="completeRose('golden')">Back to Garden</button>
+    </div>
+  </div>
+
+  <!-- VALENTINE PROPOSAL SCREEN -->
+  <div id="valentineScreen" class="screen hidden">
+    <div class="valentine-content">
+      <h1>💕 Will you be my Valentine? 💕</h1>
+      <div class="valentine-buttons" id="valentineButtons">
+        <button class="yes-btn" onclick="sayYes()">Yes! 💖</button>
+        <button class="no-btn" id="noBtn" onmouseover="runAway()" onclick="runAway()">No</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CELEBRATION SCREEN -->
+  <div id="celebrationScreen" class="screen hidden">
+    <div class="celebration-content">
+      <h1>🎉 HURRAY! 🎉</h1>
+      <div class="celebration-hearts">💕💖💗💓💞</div>
+      <p>You've made me the happiest person in the world!</p>
+      <p style="font-size: 2rem; margin-top: 20px;">I love you! ❤️</p>
+      <button class="back-btn" onclick="showScreen('goldenExperience')">Back</button>
+    </div>
+  </div>
+
+  <!-- Tap hint for yellow rose unlock -->
+  <div id="tapHint" class="tap-hint hidden">Tap anywhere: <span id="tapCount">0</span>/3</div>
+
+  <!-- Hover hint for white rose unlock -->
+  <div id="hoverHint" class="hover-hint hidden">Keep hovering here...</div>
+
+  <script>
+    // ========================================
+    // STATE MANAGEMENT
+    // ========================================
+    let tapCount = 0;
+    let hoverTimer = null;
+    let hoverProgress = 0;
+    let calmTimer = null;
+    let unlockedRoses = {
+      red: true, // Red starts unlocked
+      pink: false,
+      yellow: false,
+      white: false,
+      lavender: false,
+      golden: false
+    };
+
+    // ========================================
+    // FLOATING PETALS
+    // ========================================
+    function createPetals() {
+      const petalCount = 20;
+      for (let i = 0; i < petalCount; i++) {
+        const petal = document.createElement('div');
+        petal.className = 'petal';
+        petal.style.left = Math.random() * 100 + '%';
+        petal.style.animationDuration = (Math.random() * 5 + 5) + 's';
+        petal.style.animationDelay = Math.random() * 5 + 's';
+        document.getElementById('arrivalScreen').appendChild(petal);
+      }
+    }
+
+    // ========================================
+    // SCREEN NAVIGATION
+    // ========================================
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+      document.getElementById(screenId).classList.remove('hidden');
+    }
+
+    function startGarden() {
+      showScreen('gardenScreen');
+    }
+
+    function completeRose(currentRose, unlockNext) {
+      if (unlockNext) {
+        unlockRose(unlockNext);
+      }
+      showScreen('gardenScreen');
+    }
+
+
+    // ========================================
+    // UNLOCK MECHANICS
+    // ========================================
+    function unlockRose(roseName) {
+      const roseId = roseName + 'Rose';
+      const rose = document.getElementById(roseId);
+
+      if (!rose || unlockedRoses[roseName]) return; // Already unlocked
+
+      rose.classList.remove('locked');
+      rose.classList.add('unlocked');
+      const lockIcon = rose.querySelector('.lock-icon');
+      if (lockIcon) lockIcon.remove();
+
+      unlockedRoses[roseName] = true;
+
+      // Check if lavender should unlock (all others complete)
+      if (!unlockedRoses.lavender &&
+        unlockedRoses.pink &&
+        unlockedRoses.yellow &&
+        unlockedRoses.white) {
+        unlockRose('lavender');
+      }
+    }
+
+    // Tap counter for yellow rose
+    function setupTapListener() {
+      if (unlockedRoses.yellow) return;
+
+      const hint = document.getElementById('tapHint');
+      const counter = document.getElementById('tapCount');
+      hint.classList.remove('hidden');
+
+      function tapHandler(e) {
+        // Only count taps on the garden screen, not on rose cards
+        if (document.getElementById('gardenScreen').classList.contains('hidden')) {
+          return;
+        }
+
+        if (!unlockedRoses.yellow && !e.target.closest('.rose-card')) {
+          tapCount++;
+          counter.textContent = tapCount;
+
+          if (tapCount >= 3) {
+            unlockRose('yellow');
+            hint.classList.add('hidden');
+            document.removeEventListener('click', tapHandler);
+          }
+        }
+      }
+
+      document.addEventListener('click', tapHandler);
+    }
+
+    // Hover listener for white rose
+    function setupHoverListener() {
+      if (unlockedRoses.white) return;
+
+      const hint = document.getElementById('hoverHint');
+      const gardenScreen = document.getElementById('gardenScreen');
+
+      gardenScreen.addEventListener('mouseenter', function (e) {
+        if (!unlockedRoses.white && !gardenScreen.classList.contains('hidden')) {
+          hint.classList.remove('hidden');
+          hoverProgress = 0;
+          hoverTimer = setInterval(() => {
+            hoverProgress += 200;
+            if (hoverProgress >= 5000) {
+              clearInterval(hoverTimer);
+              unlockRose('white');
+              hint.classList.add('hidden');
+            }
+          }, 200);
+        }
+      });
+
+      gardenScreen.addEventListener('mouseleave', function () {
+        if (hoverTimer) {
+          clearInterval(hoverTimer);
+          hoverTimer = null;
+          hoverProgress = 0;
+          hint.classList.add('hidden');
+        }
+      });
+    }
+
+    // ========================================
+    // ROSE EXPERIENCES
+    // ========================================
+    function openRose(roseName) {
+      if (!unlockedRoses[roseName]) return;
+
+      switch (roseName) {
+        case 'red':
+          showScreen('redExperience');
+          break;
+        case 'pink':
+          showScreen('pinkExperience');
+          break;
+        case 'yellow':
+          showScreen('yellowExperience');
+          // Reset yellow rose state
+          document.getElementById('yellowMessage').classList.add('hidden');
+          document.getElementById('spinWordBtn').classList.remove('hidden');
+          document.getElementById('spinWordBtn').disabled = false;
+          document.getElementById('wordSlot').textContent = '✨';
+          break;
+        case 'white':
+          showScreen('whiteExperience');
+          startCalmTimer();
+          break;
+        case 'lavender':
+          showScreen('lavenderExperience');
+          break;
+        case 'golden':
+          showScreen('goldenExperience');
+          createFallingHearts();
+          break;
+      }
+    }
+
+    // ========================================
+    // PINK ROSE: COMPLIMENT ROULETTE
+    // ========================================
+    // ✏️ EDIT YOUR COMPLIMENTS HERE
+    const compliments = [
+      "Your smile could light up the darkest room.",
+      "You make ordinary moments feel extraordinary.",
+      "Your kindness is a gift to everyone around you.",
+      "You have a way of making everything better.",
+      "Your laugh is my favorite sound in the world."
+    ];
+
+    let complimentIndex = 0;
+    let isSpinning = false;
+
+    function spinCompliment() {
+      if (isSpinning) return;
+      isSpinning = true;
+
+      const textEl = document.getElementById('complimentText');
+      const box = textEl.closest('.compliment-box');
+      const spinBtn = box.nextElementSibling;
+
+      spinBtn.disabled = true;
+      box.classList.add('spinning');
+      box.classList.remove('reveal');
+
+      let iterations = 0;
+      const totalIterations = 20;
+      let delay = 50;
+
+      function cycle() {
+        complimentIndex = (complimentIndex + 1) % compliments.length;
+        textEl.textContent = compliments[complimentIndex];
+        iterations++;
+
+        if (iterations < totalIterations) {
+          // Slow down gradually
+          delay = 50 + (iterations * 15);
+          setTimeout(cycle, delay);
+        } else {
+          // Final reveal
+          box.classList.remove('spinning');
+          box.classList.add('reveal');
+          spinBtn.disabled = false;
+          isSpinning = false;
+
+          // Reset reveal effect after a moment
+          setTimeout(() => {
+            box.classList.remove('reveal');
+          }, 2000);
+        }
+      }
+
+      cycle();
+    }
+
+    // ========================================
+    // YELLOW ROSE: MEMORY FLASH
+    // ========================================
+    // ✏️ EDIT YOUR EMOTION WORDS HERE
+    const emotionWords = ['Cherished', 'Safe', 'Alive', 'Complete', 'Home'];
+
+    function spinWord() {
+      const wordSlot = document.getElementById('wordSlot');
+      const btn = document.getElementById('spinWordBtn');
+      let iterations = 0;
+      const maxIterations = 15;
+
+      btn.disabled = true;
+
+      const interval = setInterval(() => {
+        wordSlot.textContent = emotionWords[Math.floor(Math.random() * emotionWords.length)];
+        iterations++;
+
+        if (iterations >= maxIterations) {
+          clearInterval(interval);
+          wordSlot.textContent = emotionWords[Math.floor(Math.random() * emotionWords.length)];
+          document.getElementById('yellowMessage').classList.remove('hidden');
+          btn.classList.add('hidden');
+        }
+      }, 100);
+    }
+
+    // ========================================
+    // WHITE ROSE: CALM MOMENT
+    // ========================================
+    function startCalmTimer() {
+      const progressFill = document.getElementById('calmProgress');
+      const message = document.getElementById('calmMessage');
+      const backBtn = document.getElementById('whiteBackBtn');
+      const roseImage = document.getElementById('whiteRoseImage');
+      let progress = 0;
+
+      // Reset state
+      progressFill.style.width = '0%';
+      message.classList.add('hidden');
+      backBtn.classList.add('hidden');
+      if (roseImage) roseImage.classList.remove('visible');
+
+      // Clear any existing timer
+      if (calmTimer) clearInterval(calmTimer);
+
+      calmTimer = setInterval(() => {
+        progress += 2;
+        progressFill.style.width = progress + '%';
+
+        if (progress >= 100) {
+          clearInterval(calmTimer);
+          message.classList.remove('hidden');
+          backBtn.classList.remove('hidden');
+          if (roseImage) roseImage.classList.add('visible');
+        }
+      }, 100);
+    }
+
+    // ========================================
+    // GOLDEN ROSE: FALLING HEARTS
+    // ========================================
+    function createFallingHearts() {
+      const hearts = ['❤️', '💕', '💗', '💖'];
+      const heartCount = 15;
+      const container = document.getElementById('goldenExperience');
+
+      for (let i = 0; i < heartCount; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'falling-heart';
+        heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+        heart.style.left = Math.random() * 100 + '%';
+        heart.style.animationDelay = Math.random() * 4 + 's';
+        heart.style.animationDuration = (Math.random() * 4 + 6) + 's';
+        heart.style.fontSize = (Math.random() * 0.8 + 1) + 'rem';
+        container.appendChild(heart);
+      }
+    }
+
+    // ========================================
+    // VALENTINE PROPOSAL
+    // ========================================
+    function showValentine() {
+      showScreen('valentineScreen');
+      // Reset No button position
+      const noBtn = document.getElementById('noBtn');
+      noBtn.style.left = '60%';
+      noBtn.style.top = '0';
+    }
+
+    function runAway() {
+      const noBtn = document.getElementById('noBtn');
+      const container = document.getElementById('valentineButtons');
+      const containerRect = container.getBoundingClientRect();
+
+      // Get random position within viewport
+      const maxX = window.innerWidth - 150;
+      const maxY = window.innerHeight - 80;
+
+      const randomX = Math.random() * maxX;
+      const randomY = Math.random() * maxY;
+
+      // Move the button to fixed position so it can go anywhere
+      noBtn.style.position = 'fixed';
+      noBtn.style.left = randomX + 'px';
+      noBtn.style.top = randomY + 'px';
+      noBtn.style.zIndex = '1000';
+    }
+
+    function sayYes() {
+      showScreen('celebrationScreen');
+      // Add extra falling hearts to celebration
+      const hearts = ['❤️', '💕', '💗', '💖', '💝', '💓'];
+      const container = document.getElementById('celebrationScreen');
+
+      for (let i = 0; i < 30; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'falling-heart';
+        heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+        heart.style.left = Math.random() * 100 + '%';
+        heart.style.animationDelay = Math.random() * 3 + 's';
+        heart.style.animationDuration = (Math.random() * 3 + 4) + 's';
+        heart.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
+        container.appendChild(heart);
+      }
+    }
+
+    // ========================================
+    // INITIALIZATION
+    // ========================================
+    window.onload = () => {
+      createPetals();
+    };
+  </script>
+
+</body>
+
+</html>
